@@ -1,0 +1,22 @@
+# Transient hook state (counters, handoffs) — never commit
+.hook-state/
+
+# Python bytecode from the hooks
+__pycache__/
+
+# Audit reports and screenshots
+reports/
+
+# OS / editor cruft
+.DS_Store
+*.swp
+*~
+.vscode/
+.idea/
+
+# Node (for the npx CLI dev only)
+node_modules/
+
+# Video work: intermediates and outputs (large binaries)
+work/
+renders/

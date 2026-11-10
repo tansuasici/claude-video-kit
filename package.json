@@ -1,0 +1,53 @@
+{
+  "name": "@tansuasici/claude-video-kit",
+  "version": "0.0.0",
+  "description": "Drop-in kit that makes Claude Code edit video like a careful editor: source footage stays untouched, every asset has a licence, every render is checked before it counts",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tansuasici/claude-video-kit.git"
+  },
+  "homepage": "https://claudevideokit.tansuasici.com",
+  "keywords": [
+    "claude-code",
+    "claude",
+    "video",
+    "video-editing",
+    "ffmpeg",
+    "whisper",
+    "remotion",
+    "shorts",
+    "subtitles",
+    "agent-config"
+  ],
+  "bin": {
+    "claude-video-kit": "bin/claude-video-kit.js",
+    "cvk": "bin/claude-video-kit.js"
+  },
+  "files": [
+    "assets/",
+    "bin/",
+    "agents/",
+    "hooks/",
+    "agent_docs/",
+    ".claude/",
+    ".claude-plugin/",
+    "CLAUDE.md",
+    "CLAUDE.project.md",
+    "EDIT_MAP.md",
+    "AGENTS.md",
+    "README.md",
+    "CHANGELOG.md",
+    "install.sh",
+    "uninstall.sh",
+    "VERSION",
+    "LICENSE",
+    "!**/__pycache__/**"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

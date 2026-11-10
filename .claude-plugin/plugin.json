@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "video-kit",
+  "description": "Video editing kit for Claude Code: Ingest → Select → Cut → Compose → Render → QC, with an edit map, read-only source footage, a licence register and checked renders.",
+  "version": "0.0.0",
+  "author": {
+    "name": "tansuasici",
+    "url": "https://github.com/tansuasici"
+  },
+  "repository": "https://github.com/tansuasici/claude-video-kit",
+  "homepage": "https://claudevideokit.tansuasici.com",
+  "license": "MIT",
+  "skills": [
+    "./.claude/skills/"
+  ]
+}
