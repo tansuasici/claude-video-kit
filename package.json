@@ -1,6 +1,6 @@
 {
   "name": "@tansuasici/claude-video-kit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Drop-in kit that makes Claude Code edit video like a careful editor: source footage stays untouched, every asset has a licence, every render is checked before it counts",
   "license": "MIT",
   "repository": {

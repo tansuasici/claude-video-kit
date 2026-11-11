@@ -7,14 +7,14 @@
   },
   "metadata": {
     "description": "Video editing kit for Claude Code: source footage stays untouched, every asset has a licence, every render is checked before it counts.",
-    "version": "0.0.0"
+    "version": "0.1.0"
   },
   "plugins": [
     {
       "name": "claude-video-kit",
       "source": "./",
       "description": "Ingest → Select → Cut → Compose → Render → QC for video work. An EDIT_MAP.md context file, tiered session boot, and hooks (session-start, prompt-router, branch-protect, block-dangerous-commands). Skills, gates and agents land in later 0.1 work.",
-      "version": "0.0.0",
+      "version": "0.1.0",
       "author": {
         "name": "tansuasici",
         "url": "https://github.com/tansuasici"
