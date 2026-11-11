@@ -82,10 +82,11 @@ Inside Claude Code:
 /plugin install video-kit@tansuasici
 ```
 
-The plugin brings the skills, agents and hooks. The kit's `CLAUDE.md` rules
-don't load and nothing is added to your repo; at session start a hook tells
-Claude where the `EDIT_MAP.md` template is. To get the rules and the map in
-your repo, use npx or the clone.
+The plugin brings the hooks; skills land next. The kit's `CLAUDE.md` rules
+don't load and nothing is added to your repo. The session-start and
+prompt-router hooks stay silent in a project without an `EDIT_MAP.md`, so
+sessions that aren't editing video get no reminders. To get the rules and the
+map in your repo, use npx or the clone.
 
 ### Installer options
 
@@ -131,8 +132,8 @@ Neither kit needs the other. Without a brief, you describe the cut in chat.
 
 | Hook | Event | Does |
 |---|---|---|
-| `session-start.sh` | SessionStart | Reports whether `EDIT_MAP.md` is filled, shows Project and the first Delivery row, lists `linear.md → Now`. |
-| `prompt-router.sh` | UserPromptSubmit | Adds reminders for the edit map, read-only source, licences, render checks, paid generation, subtitle claims and publishing. |
+| `session-start.sh` | SessionStart | In a project with `EDIT_MAP.md`: reports whether `EDIT_MAP.md` is filled, shows Project and the first Delivery row, lists `linear.md → Now`. |
+| `prompt-router.sh` | UserPromptSubmit | In a project with `EDIT_MAP.md`: adds reminders for the edit map, read-only source, licences, render checks, paid generation, subtitle claims and publishing. |
 | `branch-protect.sh` | PreToolUse (Bash) | Blocks pushes to `main`/`master` and force-pushes. |
 | `block-dangerous-commands.sh` | PreToolUse (Bash) | Blocks destructive shell commands that are hard to reverse. |
 

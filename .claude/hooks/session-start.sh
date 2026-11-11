@@ -6,6 +6,7 @@
 # its Project line and first Delivery row, the project overlay, linear.md → Now, and
 # the branch / dirty tree. Replaces the "Session Boot" rule in CLAUDE.md, which
 # depends on the agent remembering it. Output: hookSpecificOutput JSON. Exits 0.
+# In a project without EDIT_MAP.md it prints nothing and writes nothing.
 #
 
 set -euo pipefail
@@ -18,6 +19,10 @@ source "$HOOK_LIB/state-counter.sh"
 source "$HOOK_LIB/emit.sh"
 
 ROOT="${CLAUDE_PROJECT_DIR:-$PWD}"
+# Not a video project: stay silent and leave the repo alone. The plugin is
+# enabled per user, so this hook also runs in sessions that aren't editing video.
+[ -f "$ROOT/EDIT_MAP.md" ] || exit 0
+
 STATE_DIR="$ROOT/.hook-state"
 mkdir -p "$STATE_DIR" 2>/dev/null || true
 [ -f "$STATE_DIR/.gitignore" ] || printf '*\n' >"$STATE_DIR/.gitignore" 2>/dev/null || true
@@ -50,22 +55,18 @@ table_row() {
 
 # 1. Edit map
 MAP="$ROOT/EDIT_MAP.md"
-if [ -f "$MAP" ]; then
-  PROJECT=$(section_line "$MAP" "Project")
-  DELIVERY=$(table_row "$MAP" "Delivery")
-  if [ -z "$PROJECT" ] || printf '%s' "$PROJECT" | grep -q '<'; then
-    append_line "EDIT_MAP.md is still the template. Fill it in (project, source footage, delivery, assets) before cutting anything."
-  else
-    append_line "EDIT_MAP.md is filled in. Read it before editing. Source footage listed there is read-only."
-    append_line "Project → $PROJECT"
-    [ -n "$DELIVERY" ] && ! printf '%s' "$DELIVERY" | grep -q '<' && append_line "Delivery → $DELIVERY"
-  fi
+PROJECT=$(section_line "$MAP" "Project")
+DELIVERY=$(table_row "$MAP" "Delivery")
+if [ -z "$PROJECT" ] || printf '%s' "$PROJECT" | grep -q '<'; then
+  append_line "EDIT_MAP.md is still the template. Fill it in (project, source footage, delivery, assets) before cutting anything."
 else
-  append_line "No EDIT_MAP.md. Copy the kit template and fill it in before cutting anything."
+  append_line "EDIT_MAP.md is filled in. Read it before editing. Source footage listed there is read-only."
+  append_line "Project → $PROJECT"
+  [ -n "$DELIVERY" ] && ! printf '%s' "$DELIVERY" | grep -q '<' && append_line "Delivery → $DELIVERY"
 fi
-# Plugin install: the kit's docs and templates stay in the plugin, not the project.
+# Plugin install: the kit's docs stay in the plugin, not the project.
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ ! -d "$ROOT/agent_docs" ]; then
-  append_line "Kit runs as a plugin: read agent_docs/*.md from $CLAUDE_PLUGIN_ROOT/agent_docs/, and copy the EDIT_MAP.md template from $CLAUDE_PLUGIN_ROOT/EDIT_MAP.md."
+  append_line "Kit runs as a plugin: read agent_docs/*.md from $CLAUDE_PLUGIN_ROOT/agent_docs/."
 fi
 if [ -f "$ROOT/CLAUDE.project.md" ]; then
   if grep -q '<\.\.\.>' "$ROOT/CLAUDE.project.md" 2>/dev/null; then

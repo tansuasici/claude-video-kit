@@ -39,15 +39,24 @@ expect_lacks() {
 
 # ---- edit map ----------------------------------------------------------------
 
+# No EDIT_MAP.md: not a video project. The plugin runs this hook in every
+# session, so it must print nothing and leave the repo alone.
 empty="$tmp/empty"; mkdir -p "$empty"
-out=$(start_json "$empty")
-expect_has "no map says so, as SessionStart JSON" "$out" '"hookEventName": "SessionStart"' "No EDIT_MAP.md"
+out=$(start_json "$empty" "/plugin/root")
+if [ -z "$out" ] && [ ! -e "$empty/.hook-state" ]; then
+  ok "no map: silent, no .hook-state"
+else
+  bad "no map: silent, no .hook-state" "  got: $out $(ls -a "$empty")"
+fi
+
+tpl="$tmp/tpl"; mkdir -p "$tpl"; cp "$KIT/EDIT_MAP.md" "$tpl/"
+out=$(start_json "$tpl")
+expect_has "a map gives SessionStart JSON" "$out" '"hookEventName": "SessionStart"'
 if printf '%s' "$out" | python3 -c 'import json,sys; json.load(sys.stdin)' 2>/dev/null; then ok "output is valid JSON"; else bad "output is valid JSON" "  got: $out"; fi
 
 # From here on, check the decoded context text (the JSON escapes → as →).
 start() { start_json "$@" | python3 -c 'import json,sys; print(json.load(sys.stdin)["hookSpecificOutput"]["additionalContext"])'; }
 
-tpl="$tmp/tpl"; mkdir -p "$tpl"; cp "$KIT/EDIT_MAP.md" "$tpl/"
 expect_has "the kit template counts as unfilled" "$(start "$tpl")" "still the template"
 
 filled="$tmp/filled"; mkdir -p "$filled"
@@ -71,8 +80,8 @@ expect_lacks "comments, quote hints and later rows are skipped" "$out" "one line
 
 # ---- overlay, linear.md, plugin --------------------------------------------
 
-printf 'Product: <...>\n' > "$empty/CLAUDE.project.md"
-expect_has "template overlay" "$(start "$empty")" "CLAUDE.project.md is still the template"
+printf 'Product: <...>\n' > "$tpl/CLAUDE.project.md"
+expect_has "template overlay" "$(start "$tpl")" "CLAUDE.project.md is still the template"
 printf 'Product: Acme\n' > "$filled/CLAUDE.project.md"
 expect_has "filled overlay" "$(start "$filled")" "its rules override kit defaults"
 
@@ -92,8 +101,8 @@ out=$(start "$filled")
 expect_has "open Now items are listed" "$out" "linear.md → Now:" "- [ ] one" "- [ ] five"
 expect_lacks "done, past-five and Next items are not" "$out" "- [x] done" "- [ ] six" "- [ ] later"
 
-expect_has "plugin install points at the plugin's docs" "$(start "$empty" "/plugin/root")" "Kit runs as a plugin" "/plugin/root/agent_docs/"
-expect_lacks "no plugin note without CLAUDE_PLUGIN_ROOT" "$(start "$empty")" "Kit runs as a plugin"
+expect_has "plugin install points at the plugin's docs" "$(start "$tpl" "/plugin/root")" "Kit runs as a plugin" "/plugin/root/agent_docs/"
+expect_lacks "no plugin note without CLAUDE_PLUGIN_ROOT" "$(start "$tpl")" "Kit runs as a plugin"
 
 # ---- git and state -----------------------------------------------------------
 
@@ -109,6 +118,8 @@ else
   bad "firing counters reset; .hook-state ignores itself" "  $(ls -a "$filled/.hook-state")"
 fi
 gitdir=$(mktemp -d); git -C "$gitdir" init -q
+cp "$KIT/EDIT_MAP.md" "$gitdir/"
+git -C "$gitdir" add EDIT_MAP.md && git -C "$gitdir" -c user.name=t -c user.email=t@t commit -q -m map
 start_json "$gitdir" >/dev/null
 if [ -z "$(git -C "$gitdir" status --porcelain)" ]; then
   ok ".hook-state stays out of git status"

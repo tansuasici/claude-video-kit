@@ -10,9 +10,14 @@ cd "$(dirname "$0")/../.." || exit 1
 HOOK="$PWD/.claude/hooks/prompt-router.sh"
 pass=0; fail=0
 
-# route PROMPT → hook's stdout
+KIT="$PWD"
+nomap=$(mktemp -d)
+trap 'rm -rf "$nomap"' EXIT
+
+# route PROMPT [PROJECT_DIR] → hook's stdout. The kit root has an EDIT_MAP.md.
 route() {
-  python3 -c 'import json,sys; print(json.dumps({"hook_event_name":"UserPromptSubmit","prompt":sys.argv[1]}))' "$1" | "$HOOK"
+  python3 -c 'import json,sys; print(json.dumps({"hook_event_name":"UserPromptSubmit","prompt":sys.argv[1]}))' "$1" \
+    | CLAUDE_PROJECT_DIR="${2:-$KIT}" "$HOOK"
 }
 
 ok()  { pass=$((pass + 1)); printf 'ok   %s\n' "$1"; }
@@ -53,7 +58,8 @@ expect_has "several reminders stack" "$out" "[Map first]" "[Source read-only]" "
 expect_empty "whole words only: editor, cutter, rendering" "$(route "Fix the editorconfig cutter rendering bug")"
 expect_empty "unrelated prompts are silent" "$(route "Rename the variable in install.sh")"
 expect_empty "an empty prompt is silent" "$(route "")"
-expect_empty "bad JSON is silent" "$(printf 'nope' | "$HOOK" 2>/dev/null)"
+expect_empty "bad JSON is silent" "$(printf 'nope' | CLAUDE_PROJECT_DIR="$KIT" "$HOOK" 2>/dev/null)"
+expect_empty "no EDIT_MAP.md: silent even for editing prompts" "$(route "Cut a reel with music, then render it" "$nomap")"
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
