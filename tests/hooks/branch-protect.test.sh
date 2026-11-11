@@ -53,6 +53,19 @@ allows "refspec main:feature pushes to a feature branch" "$(run 'git push origin
 allows "feature branch push"              "$(run 'git push -u origin feat/x')"
 allows "a branch named main-docs"         "$(run 'git push origin main-docs')"
 
+# ---- only the push segment counts --------------------------------------------
+# Text after `&&`, `||`, `;` or `|` belongs to another command, not the push.
+
+allows "push then gh pr create --base main" "$(run 'git push -u origin feat/x && gh pr create --base main --title x')"
+allows "push then echo main"              "$(run 'git push origin feat/x; echo main')"
+allows "push piped to grep main"          "$(run 'git push origin feat/x 2>&1 | grep main')"
+allows "push or echo master"              "$(run 'git push origin feat/x || echo master')"
+allows "push then rm -f elsewhere"        "$(run 'git push origin feat/x && rm -f out.log')"
+blocks "cd then push origin main"         "$(run 'cd x && git push origin main')"         "Direct push to main/master"
+blocks "feature push then main push"      "$(run 'git push origin feat/x && git push origin main')" "Direct push to main/master"
+blocks "push origin main then gh pr"      "$(run 'git push origin main && gh pr create --base main')" "Direct push to main/master"
+blocks "cd then force push"               "$(run 'cd x && git push --force origin feat/x')" "Force push"
+
 # ---- force push --------------------------------------------------------------
 
 blocks "--force"                          "$(run 'git push --force origin feat/x')"       "Force push"
@@ -64,6 +77,7 @@ allows "--force-with-lease"               "$(run 'git push --force-with-lease or
 blocks "bare push on main"                "$(run 'git push' "$repo")"                     "bare 'git push'"
 blocks "push -u origin on main"           "$(run 'git push -u origin' "$repo")"           "bare 'git push'"
 blocks "push origin HEAD on main"         "$(run 'git push origin HEAD' "$repo")"         "resolves to protected branch 'main'"
+blocks "chained bare push on main"        "$(run 'git add -A && git push' "$repo")"       "bare 'git push'"
 git -C "$repo" checkout -q -b feat/y
 allows "bare push on a feature branch"    "$(run 'git push' "$repo")"
 allows "push origin HEAD on a feature branch" "$(run 'git push origin HEAD' "$repo")"
