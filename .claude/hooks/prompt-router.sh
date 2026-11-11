@@ -5,12 +5,16 @@
 # Looks at the user's prompt and injects the matching video-editing reminder
 # when the task touches a known failure point (source footage, licences,
 # render checks, paid generation, subtitle claims, publishing). Emits nothing
-# when no keyword matches. Always exits 0.
+# when no keyword matches, or when the project has no EDIT_MAP.md (not a video
+# project). Always exits 0.
 #
 
 set -euo pipefail
 
 INPUT=$(cat)
+# Not a video project: stay silent. The plugin is enabled per user, so this
+# hook also runs in sessions that aren't editing video.
+[ -f "${CLAUDE_PROJECT_DIR:-$PWD}/EDIT_MAP.md" ] || exit 0
 HOOK_LIB="$(cd "$(dirname "$0")/lib" 2>/dev/null && pwd)" || exit 0
 # shellcheck source=lib/json-parse.sh
 source "$HOOK_LIB/json-parse.sh"
