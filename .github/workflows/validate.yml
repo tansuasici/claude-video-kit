@@ -1,7 +1,17 @@
 name: validate
 
-# This repo is public: keep every job on GitHub-hosted runners. A self-hosted
-# runner here would run code from fork pull requests. Without Actions, run
+# Runs on a self-hosted runner (label claudevideokit-public) because
+# GitHub-hosted runners are unavailable while the account is billing-locked.
+# Public repos run Actions for free, so self-hosted jobs still start here.
+#
+# This repo is public, so a pull request from a fork must never reach that
+# runner. Two guards:
+#   1. Each job runs only for pushes and for pull requests from branches of
+#      this repo. The `if` is evaluated by GitHub, before a runner is picked.
+#   2. A fork PR can edit this file and drop guard 1, so the repo setting
+#      "Require approval for all external contributors" must stay on: no fork
+#      workflow runs until the maintainer approves it after reading the diff.
+# Fork PRs show these checks as skipped; review them by hand and run
 # scripts/validate.sh locally (see RELEASING.md).
 
 on:
@@ -9,17 +19,26 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   plugin:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, claudevideokit-public]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: ./scripts/check-plugin.sh
 
   lint:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, claudevideokit-public]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: JSON
         run: git ls-files -z '*.json' | xargs -0 -n1 jq empty
       - name: shellcheck
@@ -28,9 +47,12 @@ jobs:
         run: bash scripts/gen-agents-md.sh --check
 
   hooks:
-    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, claudevideokit-public]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - run: bash tests/hooks/session-start.test.sh
       - run: bash tests/hooks/prompt-router.test.sh
       - run: bash tests/hooks/branch-protect.test.sh

@@ -14,8 +14,13 @@ Every `git push` then runs `scripts/validate.sh`: plugin manifest, JSON,
 shellcheck, AGENTS.md against CLAUDE.md, and the hook tests. It needs `jq` and
 `shellcheck`. Run it by hand with `bash scripts/validate.sh`.
 
-This repo is public. Its workflows run on GitHub-hosted runners only, never on
-a self-hosted runner, because a pull request from a fork could run code there.
+`validate.yml` runs the same checks on a self-hosted runner (label
+`claudevideokit-public`). This repo is public, so fork pull requests must not
+reach it: the jobs skip PRs from forks, and the repo setting "Require approval
+for all external contributors" must stay on, because a fork PR can edit the
+workflow itself. Check fork PRs by hand and run `scripts/validate.sh` locally.
+`release.yml` stays on GitHub-hosted runners; while they are down, use the
+local release flow below.
 
 ## Cut a release
 
