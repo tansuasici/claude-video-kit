@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Runs the validate checks before every push.
+# Enable once per clone: git config core.hooksPath .githooks
+# Skip in an emergency: git push --no-verify
+exec bash "$(git rev-parse --show-toplevel)/scripts/validate.sh"

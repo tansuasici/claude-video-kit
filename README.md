@@ -155,7 +155,7 @@ linear.md                 open work: Now / Next / Later (created on install)
 
 ## Contributing
 
-PRs welcome. Open an issue first for a new skill or flow.
+PRs welcome. Open an issue first for a new skill or flow. Run `bash scripts/validate.sh` before you push; [RELEASING.md](https://github.com/tansuasici/claude-video-kit/blob/main/RELEASING.md) has the checks and the release steps.
 
 ## License
 
