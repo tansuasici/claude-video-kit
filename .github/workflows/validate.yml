@@ -1,5 +1,9 @@
 name: validate
 
+# This repo is public: keep every job on GitHub-hosted runners. A self-hosted
+# runner here would run code from fork pull requests. Without Actions, run
+# scripts/validate.sh locally (see RELEASING.md).
+
 on:
   push:
     branches: [main]

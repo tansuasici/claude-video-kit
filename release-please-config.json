@@ -30,8 +30,7 @@
           "path": ".claude-plugin/marketplace.json",
           "jsonpath": "$.plugins[0].version"
         }
-      ],
-      "release-as": "0.1.0"
+      ]
     }
   }
 }
